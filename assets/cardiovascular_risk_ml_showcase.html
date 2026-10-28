@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardiovascular Risk | Explainable ML</title>
+<style>
+  :root {
+    --bg:#08111f; --panel:#101d30; --panel2:#13243a; --text:#edf4ff;
+    --muted:#9fb0c7; --line:rgba(180,205,239,.14); --cyan:#55d6e8;
+    --blue:#7297ff; --violet:#b39aff; --green:#61dfb0; --orange:#ffbd73;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(ellipse at 12% 0%,#142d4b 0,transparent 42%),var(--bg);
+       color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+  .wrap{max-width:1180px;margin:auto;padding:34px 22px 52px}
+  .topline{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:28px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:750;letter-spacing:.02em}
+  .brand-icon{width:38px;height:38px;display:grid;place-items:center;border:1px solid #3b6b88;border-radius:12px;
+    color:var(--cyan);background:linear-gradient(145deg,#153b52,#15213a)}
+  .tag{font-size:12px;color:#b9f4fa;border:1px solid #285968;background:#102b3b;border-radius:999px;padding:7px 12px;white-space:nowrap}
+  .hero{display:grid;grid-template-columns:1.18fr .82fr;gap:28px;align-items:center;padding:28px 0 34px}
+  .eyebrow{color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:.18em;font-weight:800}
+  h1{font-size:clamp(32px,5vw,56px);line-height:1.07;letter-spacing:-.045em;margin:13px 0 18px;max-width:720px}
+  .gradient{background:linear-gradient(90deg,var(--cyan),#a5b5ff 70%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{color:#b7c6da;font-size:16px;max-width:660px;margin:0 0 22px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-size:12px;border:1px solid var(--line);color:#d6e2f4;padding:7px 10px;border-radius:8px;background:#101d2d}
+  .hero-visual{border:1px solid var(--line);border-radius:22px;background:linear-gradient(150deg,rgba(28,52,79,.9),rgba(13,25,42,.94));padding:22px;box-shadow:0 24px 70px #0003}
+  .visual-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:13px}
+  .live-dot{color:var(--green);font-size:11px}.live-dot:before{content:"";display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:7px}
+  .pulse-wrap{height:150px;position:relative;overflow:hidden;border-radius:14px;background:linear-gradient(180deg,#0b1928,#0b1725);border:1px solid var(--line)}
+  .pulse-wrap svg{width:100%;height:100%}
+  .mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+  .mini{background:#0d1a2a;border:1px solid var(--line);border-radius:12px;padding:12px}
+  .mini strong{display:block;font-size:19px}.mini span{font-size:11px;color:var(--muted)}
+  .section{margin-top:30px}
+  .section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:16px}
+  h2{font-size:22px;letter-spacing:-.025em;margin:0}
+  .sub{color:var(--muted);font-size:13px;margin-top:5px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .card{background:linear-gradient(145deg,rgba(18,33,53,.98),rgba(13,25,42,.98));border:1px solid var(--line);border-radius:16px;padding:17px}
+  .metric-card{min-height:126px;position:relative;overflow:hidden}
+  .metric-card:after{content:"";position:absolute;width:70px;height:70px;border-radius:50%;right:-25px;top:-28px;background:var(--glow,#55d6e8);opacity:.12;filter:blur(2px)}
+  .metric-label{color:var(--muted);font-size:12px}.metric-value{font-size:26px;font-weight:800;letter-spacing:-.04em;margin:8px 0 4px}
+  .metric-note{font-size:11px;color:#aebfd4}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .panel-title{font-size:15px;font-weight:750;margin:0 0 5px}.panel-desc{font-size:12px;color:var(--muted);margin:0 0 18px}
+  .model-list{display:grid;gap:13px}
+  .model-row{display:grid;grid-template-columns:135px 1fr;gap:12px;align-items:center;font-size:12px}
+  .model-name{color:#dbe7f7}.bar-track{height:10px;background:#071321;border:1px solid var(--line);border-radius:99px;overflow:hidden}
+  .bar{height:100%;width:0;border-radius:99px;transition:width .5s ease}
+  .model-row small{grid-column:2;color:#8297b1;margin-top:-8px;font-size:10px}
+  .select-wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 18px}
+  select{background:#0b1929;color:var(--text);border:1px solid #2b4562;padding:9px 11px;border-radius:9px;font:inherit;font-size:12px}
+  .btn{border:1px solid #2c6575;background:#123546;color:#c9f8fb;padding:9px 12px;border-radius:9px;cursor:pointer;font:inherit;font-size:12px}
+  .btn:hover{background:#17465a}
+  .shap-row{display:grid;grid-template-columns:125px 1fr 35px;gap:10px;align-items:center;margin:13px 0;font-size:12px}
+  .shap-track{height:12px;border-radius:4px;background:#0a1726;overflow:hidden}
+  .shap-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .35s ease}
+  .shap-value{text-align:right;color:#b8c8dd;font-variant-numeric:tabular-nums}
+  .note{margin-top:15px;padding:11px 13px;border-left:3px solid var(--orange);background:#2a2119;border-radius:0 9px 9px 0;color:#e7cba7;font-size:11px}
+  .workflow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .step{padding:16px 13px;border:1px solid var(--line);background:#0e1b2c;border-radius:14px;min-height:125px}
+  .step-num{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.12em}
+  .step h3{font-size:13px;margin:10px 0 5px}.step p{font-size:11px;color:var(--muted);margin:0}
+  .techs{display:flex;flex-wrap:wrap;gap:8px}
+  .tech{border:1px solid #2a3c56;background:#101e30;padding:8px 11px;border-radius:9px;font-size:12px;color:#d1dff1}
+  .footer{display:flex;justify-content:space-between;gap:16px;border-top:1px solid var(--line);margin-top:30px;padding-top:18px;color:#8195ad;font-size:11px}
+  .footer strong{color:#b8c9df}
+  @media(max-width:850px){.hero{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,1fr)}.workflow{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:580px){.wrap{padding:20px 14px 35px}.topline{align-items:flex-start}.tag{white-space:normal;text-align:center}.two-col{grid-template-columns:1fr}.grid4{gap:8px}.card{padding:14px}.model-row{grid-template-columns:110px 1fr}.shap-row{grid-template-columns:105px 1fr 30px}.workflow{grid-template-columns:1fr 1fr}.footer{flex-direction:column}.mini strong{font-size:16px}}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topline">
+    <div class="brand"><div class="brand-icon">✚</div><span>HEART<span style="color:var(--cyan)">SCOPE</span> <span style="color:#8195ad;font-weight:500">/ ML PROJECT</span></span></div>
+    <div class="tag">RESEARCH PROJECT · EXPLAINABLE AI</div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Machine Learning · Health Analytics</div>
+      <h1>Cardiovascular Risk Prediction with <span class="gradient">Explainable ML</span></h1>
+      <p class="lead">A machine-learning workflow that studies self-reported health indicators, compares four classification models, and makes model behaviour easier to inspect through SHAP explanations and demographic subgroup checks.</p>
+      <div class="chips">
+        <span class="chip">Class imbalance aware</span><span class="chip">SHAP explanations</span>
+        <span class="chip">Fairness audit</span><span class="chip">BRFSS-style data</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="visual-head"><strong>Health indicators → model insights</strong><span class="live-dot">Workflow preview</span></div>
+      <div class="pulse-wrap">
+        <svg viewBox="0 0 520 150" preserveAspectRatio="none" role="img" aria-label="Decorative ECG-inspired line representing health data">
+          <defs><linearGradient id="ecg" x1="0" x2="1"><stop stop-color="#7297ff"/><stop offset="1" stop-color="#55d6e8"/></linearGradient></defs>
+          <g stroke="#31506b" stroke-width=".7" opacity=".5">
+            <path d="M0 25H520M0 50H520M0 75H520M0 100H520M0 125H520"/>
+            <path d="M52 0V150M104 0V150M156 0V150M208 0V150M260 0V150M312 0V150M364 0V150M416 0V150M468 0V150"/>
+          </g>
+          <path d="M0 78 L45 78 L59 72 L72 84 L88 78 L116 78 L133 65 L145 105 L160 28 L177 92 L191 78 L224 78 L239 70 L250 83 L264 78 L294 78 L309 63 L323 103 L339 34 L354 92 L369 78 L400 78 L414 72 L426 82 L440 78 L469 78 L483 66 L495 96 L508 78 L520 78" fill="none" stroke="url(#ecg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="mini-grid">
+        <div class="mini"><strong>04</strong><span>Models compared</span></div>
+        <div class="mini"><strong>SHAP</strong><span>Local + global</span></div>
+        <div class="mini"><strong>Audit</strong><span>Subgroup checks</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><h2>Project at a glance</h2><div class="sub">The core components of the proposed analysis</div></div></div>
+    <div class="grid4">
+      <div class="card metric-card" style="--glow:var(--cyan)"><div class="metric-label">MODEL BENCHMARK</div><div class="metric-value">4 models</div><div class="metric-note">Linear + tree-based methods</div></div>
+      <div class="card metric-card" style="--glow:var(--blue)"><div class="metric-label">EXPLAINABILITY</div><div class="metric-value">SHAP</div><div class="metric-note">Global patterns and individual cases</div></div>
+      <div class="card metric-card" style="--glow:var(--violet)"><div class="metric-label">EVALUATION</div><div class="metric-value">3 metrics</div><div class="metric-note">ROC-AUC · PR-AUC · F1-score</div></div>
+      <div class="card metric-card" style="--glow:var(--green)"><div class="metric-label">RESPONSIBLE ML</div><div class="metric-value">Fairness</div><div class="metric-note">Compare outcomes by subgroup</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><h2>Model comparison lab</h2><div class="sub">Select a model to explore its role in the experiment.</div></div></div>
+    <div class="two-col">
+      <div class="card">
+        <div class="panel-title">Four candidate models</div><p class="panel-desc">Illustrative comparison layout — bars are not measured performance.</p>
+        <div class="model-list">
+          <div class="model-row"><span class="model-name">Logistic Regression</span><div class="bar-track"><div class="bar" style="width:48%;background:var(--cyan)"></div></div><small>Interpretable baseline · linear decision boundary</small></div>
+          <div class="model-row"><span class="model-name">Random Forest</span><div class="bar-track"><div class="bar" style="width:68%;background:var(--blue)"></div></div><small>Bagged trees · captures nonlinear patterns</small></div>
+          <div class="model-row"><span class="model-name">XGBoost</span><div class="bar-track"><div class="bar" style="width:82%;background:var(--violet)"></div></div><small>Gradient boosting · regularized tree ensemble</small></div>
+          <div class="model-row"><span class="model-name">LightGBM</span><div class="bar-track"><div class="bar" style="width:75%;background:var(--green)"></div></div><small>Efficient gradient boosting for tabular data</small></div>
+        </div>
+        <div class="note">Bar lengths are decorative placeholders, not ROC-AUC or accuracy scores. Replace them with results from your evaluation.</div>
+      </div>
+      <div class="card">
+        <div class="panel-title">Model explorer</div><p class="panel-desc">Choose a candidate to see the intended use and evaluation focus.</p>
+        <div class="select-wrap"><label for="modelSelect" style="font-size:12px;color:var(--muted)">Candidate model</label>
+          <select id="modelSelect" aria-label="Choose machine learning model">
+            <option value="lr">Logistic Regression</option><option value="rf">Random Forest</option>
+            <option value="xgb">XGBoost</option><option value="lgbm">LightGBM</option>
+          </select>
+        </div>
+        <div id="modelDetail" aria-live="polite">
+          <div style="color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:.12em">BASELINE MODEL</div>
+          <h3 style="margin:8px 0 7px;font-size:21px">Logistic Regression</h3>
+          <p id="modelDescription" style="color:#b5c5d9;font-size:13px;margin:0 0 15px">A useful baseline with a relatively direct relationship between features and predicted log-odds.</p>
+          <div class="chips"><span class="chip" id="modelStrength">Interpretable baseline</span><span class="chip" id="modelCaution">May miss nonlinear effects</span></div>
+        </div>
+        <div style="margin-top:19px;border-top:1px solid var(--line);padding-top:14px">
+          <div class="panel-title" style="font-size:13px">Evaluation checklist</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><span class="tech">ROC-AUC</span><span class="tech">PR-AUC</span><span class="tech">F1-score</span><span class="tech">Confusion matrix</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><h2>Explainability & fairness</h2><div class="sub">Look beyond a single prediction score.</div></div></div>
+    <div class="two-col">
+      <div class="card">
+        <div class="panel-title">SHAP feature contribution preview</div>
+        <p class="panel-desc">Illustrative feature names and relative bar sizes. Use your fitted model's SHAP values for real findings.</p>
+        <div class="shap-row"><span>General health</span><div class="shap-track"><div class="shap-fill" style="width:88%"></div></div><span class="shap-value">—</span></div>
+        <div class="shap-row"><span>Age category</span><div class="shap-track"><div class="shap-fill" style="width:73%"></div></div><span class="shap-value">—</span></div>
+        <div class="shap-row"><span>Physical activity</span><div class="shap-track"><div class="shap-fill" style="width:59%"></div></div><span class="shap-value">—</span></div>
+        <div class="shap-row"><span>Smoking status</span><div class="shap-track"><div class="shap-fill" style="width:44%"></div></div><span class="shap-value">—</span></div>
+        <div class="shap-row"><span>Sleep indicators</span><div class="shap-track"><div class="shap-fill" style="width:31%"></div></div><span class="shap-value">—</span></div>
+        <div class="note">These are example indicators only. Their displayed order and bar sizes do not represent actual feature importance or causal effects.</div>
+      </div>
+      <div class="card">
+        <div class="panel-title">Fairness audit checklist</div><p class="panel-desc">Evaluate whether model errors and performance differ across demographic groups.</p>
+        <div style="display:grid;gap:10px">
+          <div style="display:flex;gap:11px;align-items:flex-start"><div style="color:var(--cyan);font-size:18px">◈</div><div><strong style="font-size:13px">Group-wise performance</strong><div class="sub">Compare ROC-AUC, PR-AUC, precision, recall and F1 where sample sizes allow.</div></div></div>
+          <div style="display:flex;gap:11px;align-items:flex-start"><div style="color:var(--blue);font-size:18px">◈</div><div><strong style="font-size:13px">Error-rate differences</strong><div class="sub">Inspect false-negative and false-positive rates across age, sex and other available groups.</div></div></div>
+          <div style="display:flex;gap:11px;align-items:flex-start"><div style="color:var(--violet);font-size:18px">◈</div><div><strong style="font-size:13px">Calibration and limitations</strong><div class="sub">Check predicted-risk calibration and report small-group uncertainty.</div></div></div>
+          <div style="display:flex;gap:11px;align-items:flex-start"><div style="color:var(--green);font-size:18px">◈</div><div><strong style="font-size:13px">Responsible interpretation</strong><div class="sub">Treat this as research support, not a diagnosis or clinical decision tool.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><h2>Research workflow</h2><div class="sub">A reproducible pipeline from raw data to model interpretation.</div></div></div>
+    <div class="workflow">
+      <div class="step"><div class="step-num">01 / DATA</div><h3>Explore & clean</h3><p>Review missing values, target definition, feature types and possible leakage.</p></div>
+      <div class="step"><div class="step-num">02 / PREP</div><h3>Split & balance</h3><p>Use a stratified split. Apply SMOTE to training data only, inside the pipeline.</p></div>
+      <div class="step"><div class="step-num">03 / TRAIN</div><h3>Fit four models</h3><p>Use consistent preprocessing and a validation strategy for fair comparison.</p></div>
+      <div class="step"><div class="step-num">04 / EVALUATE</div><h3>Compare metrics</h3><p>Report ROC-AUC, PR-AUC, F1 and confusion-matrix results on held-out data.</p></div>
+      <div class="step"><div class="step-num">05 / EXPLAIN</div><h3>SHAP & audit</h3><p>Explain model behaviour and check subgroup performance with uncertainty.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><h2>Technology stack</h2><div class="sub">Tools planned for implementation</div></div></div>
+    <div class="card"><div class="techs">
+      <span class="tech">Python</span><span class="tech">Pandas</span><span class="tech">NumPy</span>
+      <span class="tech">Scikit-learn</span><span class="tech">imbalanced-learn / SMOTE</span>
+      <span class="tech">XGBoost</span><span class="tech">LightGBM</span><span class="tech">SHAP</span>
+      <span class="tech">Matplotlib / Seaborn</span><span class="tech">Jupyter Notebook</span>
+    </div></div>
+  </section>
+
+  <footer class="footer">
+    <div><strong>HEARTSCOPE</strong> · Explainable machine-learning project showcase</div>
+    <div>Research prototype · Not intended for diagnosis or medical advice</div>
+  </footer>
+</div>
+<script>
+const models = {
+  lr: {label:"BASELINE MODEL", name:"Logistic Regression",
+    description:"A useful baseline with a relatively direct relationship between features and predicted log-odds.",
+    strength:"Interpretable baseline", caution:"May miss nonlinear effects"},
+  rf: {label:"BAGGED TREE ENSEMBLE", name:"Random Forest",
+    description:"Combines many decision trees and can capture nonlinear relationships and feature interactions.",
+    strength:"Flexible nonlinear model", caution:"Can be harder to explain directly"},
+  xgb: {label:"GRADIENT BOOSTING", name:"XGBoost",
+    description:"Builds trees sequentially to correct prior errors, with regularization options to help control overfitting.",
+    strength:"Strong tabular-data candidate", caution:"Requires careful tuning"},
+  lgbm: {label:"EFFICIENT BOOSTING", name:"LightGBM",
+    description:"A gradient-boosting framework designed for efficient training on structured datasets.",
+    strength:"Training efficiency", caution:"Check overfitting and calibration"}
+};
+const select = document.getElementById("modelSelect");
+select.addEventListener("change", () => {
+  const m = models[select.value];
+  document.querySelector("#modelDetail > div").textContent = m.label;
+  document.querySelector("#modelDetail h3").textContent = m.name;
+  document.getElementById("modelDescription").textContent = m.description;
+  document.getElementById("modelStrength").textContent = m.strength;
+  document.getElementById("modelCaution").textContent = m.caution;
+});
+</script>
+</body>
+</html>
